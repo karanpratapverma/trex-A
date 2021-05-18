@@ -1,3 +1,4 @@
+
 var PLAY = 1;
 var END = 0;
 var gameState = PLAY;
@@ -10,7 +11,6 @@ var obstaclesGroup, obstacle1, obstacle2, obstacle3, obstacle4;
 var backgroundImg
 var score=0;
 var jumpSound, collidedSound;
-
 var gameOver, restart;
 
 
@@ -21,7 +21,7 @@ function preload(){
   backgroundImg = loadImage("backgroundImg.png")
   sunAnimation = loadImage("sun.png");
   
-  trex_running = loadAnimation("trex_2.png","/trex_1.png","trex_3.png");
+  trex_running = loadAnimation("trex_2.png","trex_1.png","trex_3.png");
   trex_collided = loadAnimation("trex_collided.png");
   
   groundImage = loadImage("ground.png");
@@ -38,15 +38,13 @@ function preload(){
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(displayWidth, displayHeight-110);
   
   sun = createSprite(width-50,100,10,10);
   sun.addAnimation("sun", sunAnimation);
   sun.scale = 0.1
   
   trex = createSprite(50,height-70,20,50);
-  
-  
   trex.addAnimation("running", trex_running);
   trex.addAnimation("collided", trex_collided);
   trex.setCollider('circle',0,0,350)
@@ -132,7 +130,7 @@ function draw() {
     obstaclesGroup.setLifetimeEach(-1);
     cloudsGroup.setLifetimeEach(-1);
     
-    if(touches.length>0 || keyDown("SPACE")) {      
+     if(mousePressedOver(restart)) {
       reset();
       touches = []
     }
@@ -146,13 +144,13 @@ function spawnClouds() {
   //write code here to spawn the clouds
   if (frameCount % 60 === 0) {
     var cloud = createSprite(width+20,height-300,40,10);
-    cloud.y = Math.round(random(100,220));
+    cloud.y = Math.round(random(80,120));
     cloud.addImage(cloudImage);
     cloud.scale = 0.5;
     cloud.velocityX = -3;
     
      //assign lifetime to the variable
-    cloud.lifetime = 300;
+    cloud.lifetime = 200;
     
     //adjust the depth
     cloud.depth = trex.depth;
@@ -163,6 +161,7 @@ function spawnClouds() {
   }
   
 }
+
 
 function spawnObstacles() {
   if(frameCount % 60 === 0) {
@@ -179,11 +178,15 @@ function spawnObstacles() {
               break;
       case 2: obstacle.addImage(obstacle2);
               break;
+      case 3: obstacle.addImage(obstacle3);
+              break;
+      case 4: obstacle.addImage(obstacle4);
+              break;              
       default: break;
     }
     
     //assign scale and lifetime to the obstacle           
-    obstacle.scale = 0.3;
+    obstacle.scale = 0.5;
     obstacle.lifetime = 300;
     obstacle.depth = trex.depth;
     trex.depth +=1;
@@ -204,4 +207,31 @@ function reset(){
   
   score = 0;
   
+}
+
+
+class Particle {
+    constructor(x, y, r) {
+        var options = {
+            restitution : 0.4,
+            //'fricton':1.0
+        }
+        this.r = r;
+        this.body = Bodies.circle(x ,y , this.r,options);
+        this.color = color(random(0,255),random(0,255),random(0,255));
+        World.add(world,this.body);
+
+    }
+    display() {
+        push();
+        var pos = this.body.position;
+        var angle = this.body.angle;
+        translate(pos.x,pos.y);
+        rotate(angle);
+        noStroke();
+        ellipseMode(RADIUS);
+        fill(this.color);
+        ellipse(0, 0, this.r, this.r);
+        pop();
+    }
 }
